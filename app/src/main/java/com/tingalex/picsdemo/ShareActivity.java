@@ -287,6 +287,7 @@ public class ShareActivity extends AppCompatActivity {
         good.setCategroy(category);
         good.setTradeState("onSell");
         good.setPicurls(picurls);
+        good.setContainPackageCost(containPackageCost);
 //        Glide.with(this).load(picurls.get(0)).into(pictureFromWeb);
         good.save(new SaveListener<String>() {
             @Override

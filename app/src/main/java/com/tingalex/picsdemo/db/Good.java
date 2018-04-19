@@ -19,6 +19,7 @@ public class Good extends BmobObject {
     private String belongto;
     private String sellto;
 
+
     public String getBelongto() {
         return belongto;
     }

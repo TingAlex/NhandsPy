@@ -2,8 +2,11 @@ package com.tingalex.picsdemo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,10 +20,30 @@ import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
 
 public class DetailsActivity extends AppCompatActivity {
+    public static final int UPDATE=1;
     private TextView title, belongto, description, packageCost, price, category;
     private ImageView pictureFromWeb;
     private Context context;
+    private Good good;
 
+    private Handler handler=new Handler(){
+        public void handleMessage(Message msg){
+            switch (msg.what){
+                case UPDATE:
+                    title.setText(title.getText().toString() + good.getTitle());
+                    belongto.setText(belongto.getText().toString() + good.getBelongto());
+                    description.setText(description.getText().toString() + good.getDescription());
+                    if (good.getContainPackageCost()==null||good.getContainPackageCost()==true) {
+                        packageCost.setText(packageCost.getText().toString() + "是");
+                    } else {
+                        packageCost.setText(packageCost.getText().toString() + "否");
+                    }
+                    price.setText(price.getText().toString() + good.getPrice());
+                    category.setText(category.getText().toString() + good.getCategroy());
+                    Glide.with(context).load(good.getPicurls().get(0)).into(pictureFromWeb);
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,32 +60,32 @@ public class DetailsActivity extends AppCompatActivity {
         String goodUid = intent.getStringExtra("uid");
         context = getApplicationContext();
 
-        getDetails(context, goodUid);
+        getDetails(goodUid);
 
 
     }
 
-    private void getDetails(final Context context, String uid) {
-        BmobQuery<Good> bmobQuery = new BmobQuery("Good");
-        bmobQuery.addWhereEqualTo("uid", uid);
-        bmobQuery.findObjects(new FindListener<Good>() {
+    private void getDetails(final String uid) {
+
+        new Thread(new Runnable() {
             @Override
-            public void done(List<Good> objects, BmobException e) {
-                Good good = objects.get(0);
-                if (good != null) {
-                    title.setText(title.getText().toString() + good.getTitle());
-                    belongto.setText(belongto.getText().toString() + good.getBelongto());
-                    description.setText(description.getText().toString() + good.getDescription());
-                    if (good.getContainPackageCost()) {
-                        packageCost.setText(packageCost.getText().toString() + "是");
-                    } else {
-                        packageCost.setText(packageCost.getText().toString() + "否");
+            public void run() {
+                BmobQuery<Good> bmobQuery = new BmobQuery("Good");
+                bmobQuery.addWhereEqualTo("uid", uid);
+                bmobQuery.findObjects(new FindListener<Good>() {
+                    @Override
+                    public void done(List<Good> objects, BmobException e) {
+                        good = objects.get(0);
+                        if (good != null) {
+                            Log.i("bmob", "done: get user!");
+                            Message message=new Message();
+                            message.what=UPDATE;
+                            handler.sendMessage(message);
+                        }
                     }
-                    price.setText(price.getText().toString() + good.getPrice());
-                    category.setText(category.getText().toString() + good.getCategroy());
-                    Glide.with(context).load(good.getPicurls().get(0)).into(pictureFromWeb);
-                }
+                });
             }
-        });
+        }).start();
+
     }
 }

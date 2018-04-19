@@ -42,7 +42,7 @@ public class HomeActivity extends AppCompatActivity {
             Good good = goodList.get(position);
             Intent intent = new Intent(HomeActivity.this, DetailsActivity.class);
             intent.putExtra("uid", good.getUid());
-            Toast.makeText(HomeActivity.this, "click good: " + good.getUid(), Toast.LENGTH_LONG).show();
+//            Toast.makeText(HomeActivity.this, "click good: " + good.getUid(), Toast.LENGTH_LONG).show();
             startActivity(intent);
         }
     };
