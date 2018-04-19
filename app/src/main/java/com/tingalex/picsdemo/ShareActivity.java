@@ -282,8 +282,9 @@ public class ShareActivity extends AppCompatActivity {
         good.setDescription(descriptionText.getText().toString());
         good.setPrice(Double.valueOf(priceText.getText().toString()));
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
-        String userUid = preferences.getString("uid", "");
-        good.setBelongto(userUid);
+//        String userUid = preferences.getString("uid", "");
+        String userEmail = preferences.getString("email", "");
+        good.setBelongto(userEmail);
         good.setCategroy(category);
         good.setTradeState("onSell");
         good.setPicurls(picurls);

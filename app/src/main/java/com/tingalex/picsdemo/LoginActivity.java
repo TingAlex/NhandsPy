@@ -81,10 +81,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         Bmob.initialize(this, "195f864122ce10a6d3197a984d4c6370");
         setContentView(R.layout.activity_login);
 
+//        TODO: 如果想下次登录直接进去，就注释掉下面这三行代码！！
+        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+        editor.clear();
+        editor.commit();
+
+
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
+
         String email = preferences.getString("email", "");
         String password = preferences.getString("password", "");
-        if(email!=null&&password!=null){
+        Log.i("bmob", "onCreate: email is "+email);
+        Log.i("bmob", "onCreate: password is "+password);
+        if(!email.equals("")&&!password.equals("")){
             Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
             startActivity(intent);
             finish();

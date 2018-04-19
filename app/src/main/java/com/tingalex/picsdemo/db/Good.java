@@ -18,7 +18,24 @@ public class Good extends BmobObject {
     private String tradeState;
     private String belongto;
     private String sellto;
-
+//    private Users belongs;
+//    private Users sells;
+//
+//    public Users getBelongs() {
+//        return belongs;
+//    }
+//
+//    public void setBelongs(Users belongs) {
+//        this.belongs = belongs;
+//    }
+//
+//    public Users getSells() {
+//        return sells;
+//    }
+//
+//    public void setSells(Users sells) {
+//        this.sells = sells;
+//    }
 
     public String getBelongto() {
         return belongto;
