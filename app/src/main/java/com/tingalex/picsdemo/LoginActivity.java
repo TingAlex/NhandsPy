@@ -31,12 +31,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.tingalex.picsdemo.db.Good;
 import com.tingalex.picsdemo.db.Users;
-
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +41,6 @@ import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
-import cn.bmob.v3.listener.QueryListener;
 import cn.bmob.v3.listener.SaveListener;
 
 
@@ -60,6 +55,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    private String uid;
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -84,6 +80,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         Bmob.initialize(this, "195f864122ce10a6d3197a984d4c6370");
         setContentView(R.layout.activity_login);
+
+        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
+        String email = preferences.getString("email", "");
+        String password = preferences.getString("password", "");
+        if(email!=null&&password!=null){
+            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
+
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
         populateAutoComplete();
@@ -337,11 +344,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             Log.i("bmob", "成功：user and password match");
                             //add user record on the device.
                             SharedPreferences.Editor editor=getSharedPreferences("data",MODE_PRIVATE).edit();
-                            editor.putString("email",mEmail);
-                            editor.putString("password",mPassword);
+                            editor.putString("email",object.get(0).getEmail());
+                            editor.putString("password",object.get(0).getPassword());
+                            editor.putString("uid",object.get(0).getUid());
                             editor.apply();
 
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
@@ -351,10 +359,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             mPasswordView.requestFocus();
                         }
                     } else {
-                        Users user = new Users();
+                        final Users user = new Users();
                         user.setUid();
                         user.setEmail(mEmail);
                         user.setPassword(mPassword);
+                        uid=user.getUid();
                         user.save(new SaveListener<String>() {
                             @Override
                             public void done(String objectId, BmobException e) {
@@ -363,12 +372,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     SharedPreferences.Editor editor=getSharedPreferences("data",MODE_PRIVATE).edit();
                                     editor.putString("email",mEmail);
                                     editor.putString("password",mPassword);
+                                    editor.putString("uid",uid);
                                     editor.apply();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                     startActivity(intent);
                                     finish();
                                 } else {
-//                                        toast("创建数据失败：" + e.getMessage());
                                     Log.i("bmob", "添加用户失败！");
                                     showProgress(false);
                                 }
