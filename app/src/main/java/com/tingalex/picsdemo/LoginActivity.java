@@ -82,15 +82,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
 
 //        TODO: 如果想下次登录直接进去，就注释掉下面这三行代码！！
-        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-        editor.clear();
-        editor.commit();
+//        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+//        editor.clear();
+//        editor.commit();
 
 
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
 
         String email = preferences.getString("email", "");
         String password = preferences.getString("password", "");
+        String name = preferences.getString("name", "");
+        Log.i("bmob", "onCreate: name is "+name);
         Log.i("bmob", "onCreate: email is "+email);
         Log.i("bmob", "onCreate: password is "+password);
         if(!email.equals("")&&!password.equals("")){
@@ -356,6 +358,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             editor.putString("email",object.get(0).getEmail());
                             editor.putString("password",object.get(0).getPassword());
                             editor.putString("uid",object.get(0).getUid());
+                            editor.putString("name",object.get(0).getName());
+
                             editor.apply();
 
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
@@ -372,6 +376,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         user.setUid();
                         user.setEmail(mEmail);
                         user.setPassword(mPassword);
+                        user.setName("无名萌新");
                         uid=user.getUid();
                         user.save(new SaveListener<String>() {
                             @Override
@@ -382,6 +387,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     editor.putString("email",mEmail);
                                     editor.putString("password",mPassword);
                                     editor.putString("uid",uid);
+                                    editor.putString("name","无名萌新");
                                     editor.apply();
                                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                     startActivity(intent);

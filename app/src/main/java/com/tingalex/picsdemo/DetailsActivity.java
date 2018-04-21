@@ -75,8 +75,9 @@ public class DetailsActivity extends AppCompatActivity {
                 bmobQuery.findObjects(new FindListener<Good>() {
                     @Override
                     public void done(List<Good> objects, BmobException e) {
-                        good = objects.get(0);
-                        if (good != null) {
+
+                        if (objects != null) {
+                            good = objects.get(0);
                             Log.i("bmob", "done: get user!");
                             Message message=new Message();
                             message.what=UPDATE;

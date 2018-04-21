@@ -14,6 +14,15 @@ public class Users extends BmobObject {
     private String password;
     private String phone;
     private String uid;
+    private String headpic;
+
+    public String getHeadpic() {
+        return headpic;
+    }
+
+    public void setHeadpic(String headpic) {
+        this.headpic = headpic;
+    }
 
     public String getEmail() {
         return email;
