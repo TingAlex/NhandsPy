@@ -56,14 +56,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final int REQUEST_READ_CONTACTS = 0;
     private String uid;
+    private String headpic="https://i.imgur.com/ff9GE47.jpg";
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-//    private static final String[] DUMMY_CREDENTIALS = new String[]{
-//            "foo@example.com:hello", "bar@example.com:world"
-//    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -376,6 +370,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         user.setUid();
                         user.setEmail(mEmail);
                         user.setPassword(mPassword);
+                        user.setHeadpic(headpic);
                         user.setName("无名萌新");
                         uid=user.getUid();
                         user.save(new SaveListener<String>() {

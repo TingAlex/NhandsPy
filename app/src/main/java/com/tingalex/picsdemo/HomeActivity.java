@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,9 +21,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tingalex.picsdemo.db.Good;
@@ -37,7 +36,6 @@ import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
-import cn.bmob.v3.listener.SaveListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeActivity extends AppCompatActivity {
@@ -45,9 +43,30 @@ public class HomeActivity extends AppCompatActivity {
     private Users user;
     private String uid;
     private DrawerLayout drawerLayout;
+    private GoodsInMainAdapter adapter;
+    private RecyclerView recyclerView;
+    private List<Good> goodList;
+    private Context context;
+    private TextView userEmailView;
+    private TextView userNameView;
+    private NavigationView navigationView;
+    private View headerLayout;
+    private CircleImageView headpicView;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private NavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = new NavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            int id=item.getItemId();
+            switch (id){
+                case R.id.nav_quit:
+                    Intent intent=new Intent(HomeActivity.this,LoginActivity.class);
+                    SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                    editor.clear();
+                    editor.commit();
+                    startActivity(intent);
+                    finish();
+                    break;
+            }
             drawerLayout.closeDrawers();
             return true;
         }
@@ -59,30 +78,26 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         }
     };
+    private SwipeRefreshLayout.OnRefreshListener refreshListener=new SwipeRefreshLayout.OnRefreshListener() {
+        @Override
+        public void onRefresh() {
+            updateGoods();
+        }
+    };
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UPDATE_USER:
-                    Log.i("bmob", "handleMessage: recievie "+user.getName());
+                    Log.i("bmob", "handleMessage: recievie " + user.getName());
                     userNameView.setText(user.getName());
                     userEmailView.setText(user.getEmail());
+                    Log.i("bmob", "handleMessage: user headpic "+user.getHeadpic());
                     if (user.getHeadpic() != null && !user.getHeadpic().equals("")) {
                         Glide.with(context).load(user.getHeadpic()).into(headpicView);
                     }
             }
         }
     };
-
-    private GoodsInMainAdapter adapter;
-    private RecyclerView recyclerView;
-    private List<Good> goodList;
-    private Context context;
-    private TextView userEmailView;
-    private TextView userNameView;
-    private NavigationView navigationView;
-    private View headerLayout;
-    private CircleImageView headpicView;
-
 
     private GoodsInMainAdapter.onItemClickListener clickListener = new GoodsInMainAdapter.onItemClickListener() {
         @Override
@@ -102,6 +117,7 @@ public class HomeActivity extends AppCompatActivity {
         Bmob.initialize(this, "195f864122ce10a6d3197a984d4c6370");
         setContentView(R.layout.activity_home);
 
+        context = this.getApplicationContext();
         Toolbar toolbar = findViewById(R.id.toobar);
         setSupportActionBar(toolbar);
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -116,145 +132,23 @@ public class HomeActivity extends AppCompatActivity {
         FloatingActionButton floatingActionButton = findViewById(R.id.addGood);
         floatingActionButton.setOnClickListener(onClickListener);
 
-        headerLayout=navigationView.getHeaderView(0);
-
+        headerLayout = navigationView.getHeaderView(0);
         userEmailView = headerLayout.findViewById(R.id.nav_email);
         userNameView = headerLayout.findViewById(R.id.nav_name);
         headpicView = headerLayout.findViewById(R.id.icon_head);
 
-        goodList = new List<Good>() {
-            @Override
-            public int size() {
-                return 0;
-            }
+        swipeRefreshLayout=findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
+        swipeRefreshLayout.setOnRefreshListener(refreshListener);
 
-            @Override
-            public boolean isEmpty() {
-                return false;
-            }
-
-            @Override
-            public boolean contains(Object o) {
-                return false;
-            }
-
-            @NonNull
-            @Override
-            public Iterator<Good> iterator() {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public Object[] toArray() {
-                return new Object[0];
-            }
-
-            @NonNull
-            @Override
-            public <T> T[] toArray(@NonNull T[] ts) {
-                return null;
-            }
-
-            @Override
-            public boolean add(Good good) {
-                return false;
-            }
-
-            @Override
-            public boolean remove(Object o) {
-                return false;
-            }
-
-            @Override
-            public boolean containsAll(@NonNull Collection<?> collection) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(@NonNull Collection<? extends Good> collection) {
-                return false;
-            }
-
-            @Override
-            public boolean addAll(int i, @NonNull Collection<? extends Good> collection) {
-                return false;
-            }
-
-            @Override
-            public boolean removeAll(@NonNull Collection<?> collection) {
-                return false;
-            }
-
-            @Override
-            public boolean retainAll(@NonNull Collection<?> collection) {
-                return false;
-            }
-
-            @Override
-            public void clear() {
-
-            }
-
-            @Override
-            public Good get(int i) {
-                return null;
-            }
-
-            @Override
-            public Good set(int i, Good good) {
-                return null;
-            }
-
-            @Override
-            public void add(int i, Good good) {
-
-            }
-
-            @Override
-            public Good remove(int i) {
-                return null;
-            }
-
-            @Override
-            public int indexOf(Object o) {
-                return 0;
-            }
-
-            @Override
-            public int lastIndexOf(Object o) {
-                return 0;
-            }
-
-            @NonNull
-            @Override
-            public ListIterator<Good> listIterator() {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public ListIterator<Good> listIterator(int i) {
-                return null;
-            }
-
-            @NonNull
-            @Override
-            public List<Good> subList(int i, int i1) {
-                return null;
-            }
-        };
-        context = this.getApplicationContext();
-        adapter = new GoodsInMainAdapter(context, goodList);
         recyclerView = findViewById(R.id.goodsView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         uid = preferences.getString("uid", "");
+        Log.i("bmob", "onCreate: get here");
         getUserInfo();
-        update();
+        updateGoods();
 
     }
 
@@ -270,8 +164,8 @@ public class HomeActivity extends AppCompatActivity {
                         if (objects != null) {
                             Log.i("bmob", "done:homepage get user!");
                             user = objects.get(0);
-                            Log.i("bmob", "done:homepage "+user.getName());
-                            Log.i("bmob", "done:homepage "+user.getEmail());
+                            Log.i("bmob", "done:homepage " + user.getName());
+                            Log.i("bmob", "done:homepage " + user.getEmail());
                             Message message = new Message();
                             message.what = UPDATE_USER;
                             handler.sendMessage(message);
@@ -283,7 +177,7 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-    private void update() {
+    private void updateGood() {
         BmobQuery<Good> bmobQuery = new BmobQuery("Good");
         bmobQuery.addQueryKeys("uid,title,picurls");
         bmobQuery.order("-updatedAt");
@@ -299,13 +193,49 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        update();
-//        getUserInfo();
+    private void updateGoods(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                    BmobQuery<Good> bmobQuery = new BmobQuery("Good");
+                    bmobQuery.addQueryKeys("uid,title,picurls");
+                    bmobQuery.order("-updatedAt");
+                    bmobQuery.findObjects(new FindListener<Good>() {
+                        @Override
+                        public void done(List<Good> objects, BmobException e) {
+                            if (objects != null) {
+                                goodList = objects;
+                                Log.i("bmob", "done: query good finish!");
+                                adapter = new GoodsInMainAdapter(context, goodList);
+                                recyclerView.setAdapter(adapter);
+                                adapter.setOnItemClickListener(clickListener);
+                                swipeRefreshLayout.setRefreshing(false);
+//                                runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        adapter = new GoodsInMainAdapter(context, goodList);
+//                                        recyclerView.setAdapter(adapter);
+//                                        adapter.setOnItemClickListener(clickListener);
+//                                        swipeRefreshLayout.setRefreshing(false);
+//                                    }
+//                                });
+//                                adapter = new GoodsInMainAdapter(context, goodList);
+//                                recyclerView.setAdapter(adapter);
+//                                adapter.setOnItemClickListener(clickListener);
+                            }
+                        }
+                    });
+            }
+        }).start();
     }
+
+//    @Override
+//    protected void onStart() {
+//        Log.i("bmob", "onStart: get here");
+//        super.onStart();
+//        updateGood();
+//        getUserInfo();
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -1,6 +1,7 @@
 package com.tingalex.picsdemo;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +22,7 @@ import java.util.List;
 public class GoodsInMainAdapter extends RecyclerView.Adapter<GoodsInMainAdapter.ViewHolder> {
     private List<Good> goodList;
     private Context context;
-    onItemClickListener tempOnItemClickListener;
+    private onItemClickListener tempOnItemClickListener;
     public interface onItemClickListener{
         void onItemClick(View view, int position);
     }
@@ -29,12 +30,12 @@ public class GoodsInMainAdapter extends RecyclerView.Adapter<GoodsInMainAdapter.
         tempOnItemClickListener=mOnItemClickListener;
     }
     static class ViewHolder extends RecyclerView.ViewHolder{
-        View goodView;
+        CardView goodView;
         ImageView goodImage;
         TextView goodName;
         public ViewHolder(View view){
             super(view);
-            goodView=view;
+            goodView=(CardView) view;
             goodImage=view.findViewById(R.id.good_image);
             goodName=view.findViewById(R.id.good_name);
         }
