@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tingalex.picsdemo.db.Good;
@@ -29,6 +30,7 @@ import com.tingalex.picsdemo.db.Users;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -39,30 +41,40 @@ import cn.bmob.v3.listener.FindListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeActivity extends AppCompatActivity {
+    //Message alert to render UI in handler
     public static final int UPDATE_USER = 1;
     private Users user;
+    //from SharedPreference
     private String uid;
-    private DrawerLayout drawerLayout;
+    //Toolbar to replace ActionBar.
+    private Toolbar toolbar;
+    //FAB
+    private FloatingActionButton floatingActionButton;
+    //RecyclerView Part
     private GoodsInMainAdapter adapter;
     private RecyclerView recyclerView;
     private List<Good> goodList;
     private Context context;
-    private TextView userEmailView;
-    private TextView userNameView;
+    //SwipeRefresh Part
+    private SwipeRefreshLayout swipeRefreshLayout;
+    //Drawer Part
+    private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private View headerLayout;
     private CircleImageView headpicView;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    private TextView userEmailView;
+    private TextView userNameView;
     private NavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = new NavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            int id=item.getItemId();
-            switch (id){
+            int id = item.getItemId();
+            switch (id) {
+                //Drawer中的Navigation中的"我的跑路"部分
                 case R.id.nav_quit:
-                    Intent intent=new Intent(HomeActivity.this,LoginActivity.class);
+                    Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
                     SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
                     editor.clear();
-                    editor.commit();
+                    editor.apply();
                     startActivity(intent);
                     finish();
                     break;
@@ -71,6 +83,7 @@ public class HomeActivity extends AppCompatActivity {
             return true;
         }
     };
+    //Click the Floating Action Bar to create new publish action
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
@@ -78,12 +91,14 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         }
     };
-    private SwipeRefreshLayout.OnRefreshListener refreshListener=new SwipeRefreshLayout.OnRefreshListener() {
+    //Swipe to refresh the goods recycler view
+    private SwipeRefreshLayout.OnRefreshListener refreshListener = new SwipeRefreshLayout.OnRefreshListener() {
         @Override
         public void onRefresh() {
             updateGoods();
         }
     };
+    //After get user info, render UI
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -91,14 +106,14 @@ public class HomeActivity extends AppCompatActivity {
                     Log.i("bmob", "handleMessage: recievie " + user.getName());
                     userNameView.setText(user.getName());
                     userEmailView.setText(user.getEmail());
-                    Log.i("bmob", "handleMessage: user headpic "+user.getHeadpic());
+                    Log.i("bmob", "handleMessage: user headpic " + user.getHeadpic());
                     if (user.getHeadpic() != null && !user.getHeadpic().equals("")) {
                         Glide.with(context).load(user.getHeadpic()).into(headpicView);
                     }
             }
         }
     };
-
+    //Bind Click Action to every cell in recycler view. Will enter the Details Activity.
     private GoodsInMainAdapter.onItemClickListener clickListener = new GoodsInMainAdapter.onItemClickListener() {
         @Override
         public void onItemClick(View view, int position) {
@@ -106,7 +121,6 @@ public class HomeActivity extends AppCompatActivity {
             Good good = goodList.get(position);
             Intent intent = new Intent(HomeActivity.this, DetailsActivity.class);
             intent.putExtra("uid", good.getUid());
-//            Toast.makeText(HomeActivity.this, "click good: " + good.getUid(), Toast.LENGTH_LONG).show();
             startActivity(intent);
         }
     };
@@ -118,35 +132,47 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         context = this.getApplicationContext();
-        Toolbar toolbar = findViewById(R.id.toobar);
+
+        toolbar = findViewById(R.id.toobar);
         setSupportActionBar(toolbar);
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.menu);
         }
+
+        floatingActionButton = findViewById(R.id.addGood);
+        floatingActionButton.setOnClickListener(onClickListener);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+
+        navigationView = findViewById(R.id.nav_view);
+        //Set default chosen item."探索发现"
         navigationView.setCheckedItem(R.id.nav_main);
         navigationView.setNavigationItemSelectedListener(onNavigationItemSelectedListener);
-        FloatingActionButton floatingActionButton = findViewById(R.id.addGood);
-        floatingActionButton.setOnClickListener(onClickListener);
 
         headerLayout = navigationView.getHeaderView(0);
         userEmailView = headerLayout.findViewById(R.id.nav_email);
         userNameView = headerLayout.findViewById(R.id.nav_name);
         headpicView = headerLayout.findViewById(R.id.icon_head);
 
-        swipeRefreshLayout=findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorPrimary));
         swipeRefreshLayout.setOnRefreshListener(refreshListener);
 
         recyclerView = findViewById(R.id.goodsView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+
+        goodList = new LinkedList<>();
+        adapter = new GoodsInMainAdapter(context, goodList);
+        recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(clickListener);
+
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
         uid = preferences.getString("uid", "");
-        Log.i("bmob", "onCreate: get here");
+        Log.i("bmob", "onCreate: get user uid : " + uid);
+
         getUserInfo();
         updateGoods();
 
@@ -164,11 +190,11 @@ public class HomeActivity extends AppCompatActivity {
                         if (objects != null) {
                             Log.i("bmob", "done:homepage get user!");
                             user = objects.get(0);
-                            Log.i("bmob", "done:homepage " + user.getName());
-                            Log.i("bmob", "done:homepage " + user.getEmail());
                             Message message = new Message();
                             message.what = UPDATE_USER;
                             handler.sendMessage(message);
+                        } else {
+                            Toast.makeText(context, "Network connection failed, try again later", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -177,67 +203,34 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
-    private void updateGood() {
-        BmobQuery<Good> bmobQuery = new BmobQuery("Good");
-        bmobQuery.addQueryKeys("uid,title,picurls");
-        bmobQuery.order("-updatedAt");
-        bmobQuery.findObjects(new FindListener<Good>() {
-            @Override
-            public void done(List<Good> objects, BmobException e) {
-                if (objects != null) {
-                    goodList = objects;
-                    adapter = new GoodsInMainAdapter(context, goodList);
-                    recyclerView.setAdapter(adapter);
-                    adapter.setOnItemClickListener(clickListener);
-                }
-            }
-        });
-    }
-    private void updateGoods(){
+    private void updateGoods() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                    BmobQuery<Good> bmobQuery = new BmobQuery("Good");
-                    bmobQuery.addQueryKeys("uid,title,picurls");
-                    bmobQuery.order("-updatedAt");
-                    bmobQuery.findObjects(new FindListener<Good>() {
-                        @Override
-                        public void done(List<Good> objects, BmobException e) {
-                            if (objects != null) {
-                                goodList = objects;
-                                Log.i("bmob", "done: query good finish!");
-                                adapter = new GoodsInMainAdapter(context, goodList);
-                                recyclerView.setAdapter(adapter);
-                                adapter.setOnItemClickListener(clickListener);
-                                swipeRefreshLayout.setRefreshing(false);
-//                                runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        adapter = new GoodsInMainAdapter(context, goodList);
-//                                        recyclerView.setAdapter(adapter);
-//                                        adapter.setOnItemClickListener(clickListener);
-//                                        swipeRefreshLayout.setRefreshing(false);
-//                                    }
-//                                });
-//                                adapter = new GoodsInMainAdapter(context, goodList);
-//                                recyclerView.setAdapter(adapter);
-//                                adapter.setOnItemClickListener(clickListener);
-                            }
+                BmobQuery<Good> bmobQuery = new BmobQuery("Good");
+                bmobQuery.addQueryKeys("uid,title,picurls");
+                bmobQuery.order("-updatedAt");
+                bmobQuery.findObjects(new FindListener<Good>() {
+                    @Override
+                    public void done(List<Good> objects, BmobException e) {
+                        if (objects != null) {
+                            goodList.clear();
+                            goodList.addAll(objects);
+                            Log.i("bmob", "done: query good finish!");
+                            adapter.notifyDataSetChanged();
+                            swipeRefreshLayout.setRefreshing(false);
+                        } else {
+                            Toast.makeText(context, "Network connection failed, try again later", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    }
+                });
             }
         }).start();
     }
 
-//    @Override
-//    protected void onStart() {
-//        Log.i("bmob", "onStart: get here");
-//        super.onStart();
-//        updateGood();
-//        getUserInfo();
-//    }
 
     @Override
+    //Action after you click the Hamburger icon on the top left of toolbar: Open the Drawer
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             //这里的android前缀绝对不能丢！！

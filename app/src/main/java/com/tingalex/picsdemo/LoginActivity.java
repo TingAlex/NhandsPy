@@ -56,7 +56,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private static final int REQUEST_READ_CONTACTS = 0;
     private String uid;
-    private String headpic="https://i.imgur.com/ff9GE47.jpg";
+    private String USER_DEFAULT_HEAD_PIC = "https://i.imgur.com/ff9GE47.jpg";
+    private String USER_DEFAULT_NAME = "无名萌新";
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -78,19 +79,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //        TODO: 如果想下次登录直接进去，就注释掉下面这三行代码！！
 //        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
 //        editor.clear();
-//        editor.commit();
+//        editor.apply();
 
 
         SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
 
         String email = preferences.getString("email", "");
         String password = preferences.getString("password", "");
-        String name = preferences.getString("name", "");
-        Log.i("bmob", "onCreate: name is "+name);
-        Log.i("bmob", "onCreate: email is "+email);
-        Log.i("bmob", "onCreate: password is "+password);
-        if(!email.equals("")&&!password.equals("")){
-            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+        Log.i("bmob", "onCreate: stored email is " + email);
+        Log.i("bmob", "onCreate: stored password is " + password);
+        if (!email.equals("") && !password.equals("")) {
+            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
             startActivity(intent);
             finish();
         }
@@ -348,12 +347,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         if (object.get(0).getPassword().equals(mPassword)) {
                             Log.i("bmob", "成功：user and password match");
                             //add user record on the device.
-                            SharedPreferences.Editor editor=getSharedPreferences("data",MODE_PRIVATE).edit();
-                            editor.putString("email",object.get(0).getEmail());
-                            editor.putString("password",object.get(0).getPassword());
-                            editor.putString("uid",object.get(0).getUid());
-                            editor.putString("name",object.get(0).getName());
-
+                            SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                            editor.putString("email", object.get(0).getEmail());
+                            editor.putString("password", object.get(0).getPassword());
+                            editor.putString("uid", object.get(0).getUid());
+                            editor.putString("name", object.get(0).getName());
                             editor.apply();
 
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
@@ -370,19 +368,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         user.setUid();
                         user.setEmail(mEmail);
                         user.setPassword(mPassword);
-                        user.setHeadpic(headpic);
-                        user.setName("无名萌新");
-                        uid=user.getUid();
+                        user.setHeadpic(USER_DEFAULT_HEAD_PIC);
+                        user.setName(USER_DEFAULT_NAME);
+                        uid = user.getUid();
                         user.save(new SaveListener<String>() {
                             @Override
                             public void done(String objectId, BmobException e) {
                                 if (e == null) {
                                     Log.i("bmob", "添加用户成功");
-                                    SharedPreferences.Editor editor=getSharedPreferences("data",MODE_PRIVATE).edit();
-                                    editor.putString("email",mEmail);
-                                    editor.putString("password",mPassword);
-                                    editor.putString("uid",uid);
-                                    editor.putString("name","无名萌新");
+                                    SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+                                    editor.putString("email", mEmail);
+                                    editor.putString("password", mPassword);
+                                    editor.putString("uid", uid);
                                     editor.apply();
                                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                     startActivity(intent);
@@ -404,14 +401,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-//            showProgress(false);
-//
-//            if (success) {
-////                finish();
-//            } else {
-//                mPasswordView.setError(getString(R.string.error_incorrect_password));
-//                mPasswordView.requestFocus();
-//            }
         }
 
         @Override

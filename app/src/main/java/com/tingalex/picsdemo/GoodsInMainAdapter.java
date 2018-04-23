@@ -16,7 +16,7 @@ import com.tingalex.picsdemo.db.Good;
 import java.util.List;
 
 /**
- * Created by oureda on 2018/4/19.
+ * Created by Ting on 2018/4/19.
  */
 
 public class GoodsInMainAdapter extends RecyclerView.Adapter<GoodsInMainAdapter.ViewHolder> {
@@ -53,7 +53,7 @@ public class GoodsInMainAdapter extends RecyclerView.Adapter<GoodsInMainAdapter.
             @Override
             public void onClick(View view) {
                 int position=holder.getAdapterPosition();
-                Good good=goodList.get(0);
+//                Good good=goodList.get(0);
                 tempOnItemClickListener.onItemClick(holder.itemView,position);
             }
         });

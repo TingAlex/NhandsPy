@@ -49,9 +49,7 @@ public class ShareActivity extends AppCompatActivity {
     private EditText descriptionText;
     private Boolean containPackageCost;
     private RadioGroup PackageCostGroup;
-    private RadioButton yesContain, noContain;
     private RadioGroup CategoryGroup;
-    private RadioButton food, daily, tech;
     private String category;
     private EditText priceText;
     private Button chooseFromAlbumButton;
@@ -68,11 +66,11 @@ public class ShareActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
         editor.putString("tempImagePath", imagePath);
         editor.apply();
-        //
+        //是否包邮
         containPackageCost = true;
         PackageCostGroup = findViewById(R.id.PackageCost);
         PackageCostGroup.setOnCheckedChangeListener(listenContainChange);
-        //
+        //商品类别
         category = "daily";
         CategoryGroup = findViewById(R.id.category);
         CategoryGroup.setOnCheckedChangeListener(listenCategoryChange);
@@ -120,7 +118,6 @@ public class ShareActivity extends AppCompatActivity {
                             //do something
                             picurls = urls;
                             //****在这里才可以去创建goods！
-
                             createGood(picurls);
                         }
 
