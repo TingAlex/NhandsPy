@@ -69,6 +69,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private Button mEmailSignInButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,20 +81,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 //        SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
 //        editor.clear();
 //        editor.apply();
-
-
-        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
-
-        String email = preferences.getString("email", "");
-        String password = preferences.getString("password", "");
-        Log.i("bmob", "onCreate: stored email is " + email);
-        Log.i("bmob", "onCreate: stored password is " + password);
-        if (!email.equals("") && !password.equals("")) {
-            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
 
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
@@ -111,7 +98,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton = findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,6 +108,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
+        String email = preferences.getString("email", "");
+        String password = preferences.getString("password", "");
+        Log.i("bmob", "onCreate: stored email is " + email);
+        Log.i("bmob", "onCreate: stored password is " + password);
+        if (!email.equals("") && !password.equals("")) {
+            mEmailView.setText(email);
+            mPasswordView.setText(password);
+            attemptLogin();
+        }
+
     }
 
     private void populateAutoComplete() {
@@ -344,6 +343,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 @Override
                 public void done(List<Users> object, BmobException e) {
                     if (object != null) {
+                        //check user credits
                         if (object.get(0).getPassword().equals(mPassword)) {
                             Log.i("bmob", "成功：user and password match");
                             //add user record on the device.
@@ -364,6 +364,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             mPasswordView.requestFocus();
                         }
                     } else {
+                        //register new user
                         final Users user = new Users();
                         user.setUid();
                         user.setEmail(mEmail);
@@ -394,7 +395,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }
                 }
             });
-            // TODO: register the new account here.
             return true;
         }
 
