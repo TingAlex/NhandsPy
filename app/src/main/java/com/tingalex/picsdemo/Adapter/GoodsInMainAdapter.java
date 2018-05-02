@@ -1,4 +1,4 @@
-package com.tingalex.picsdemo;
+package com.tingalex.picsdemo.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
 
 import java.util.List;

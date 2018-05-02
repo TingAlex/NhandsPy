@@ -1,4 +1,4 @@
-package com.tingalex.picsdemo;
+package com.tingalex.picsdemo.Activity;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -23,11 +23,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
 
 import java.util.List;

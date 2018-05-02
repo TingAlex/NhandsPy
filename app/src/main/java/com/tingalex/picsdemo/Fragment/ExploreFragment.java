@@ -1,4 +1,4 @@
-package com.tingalex.picsdemo;
+package com.tingalex.picsdemo.Fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.tingalex.picsdemo.Activity.DetailsActivity;
+import com.tingalex.picsdemo.Activity.ShareActivity;
+import com.tingalex.picsdemo.Adapter.GoodsInMainAdapter;
+import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
 
 import java.util.LinkedList;

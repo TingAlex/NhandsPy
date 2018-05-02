@@ -1,8 +1,7 @@
-package com.tingalex.picsdemo;
+package com.tingalex.picsdemo.Activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -23,7 +22,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.tingalex.picsdemo.Fragment.BroughtFragment;
+import com.tingalex.picsdemo.Fragment.ChargeFragment;
+import com.tingalex.picsdemo.Fragment.ExploreFragment;
+import com.tingalex.picsdemo.Fragment.LikeFragment;
+import com.tingalex.picsdemo.Fragment.OnshowFragment;
+import com.tingalex.picsdemo.Fragment.PersonFragment;
+import com.tingalex.picsdemo.R;
+import com.tingalex.picsdemo.Fragment.SoldFragment;
 import com.tingalex.picsdemo.db.Users;
+import com.tingalex.picsdemo.global.MyApplication;
 
 import java.util.List;
 
@@ -37,6 +45,7 @@ public class HomeActivity extends AppCompatActivity {
     //Message alert to render UI in handler
     public static final int UPDATE_USER = 1;
     private Context context;
+    private MyApplication myApplication;
     private Users user;
     //from SharedPreference
     private String uid;
@@ -49,6 +58,8 @@ public class HomeActivity extends AppCompatActivity {
     private CircleImageView headpicView;
     private TextView userEmailView;
     private TextView userNameView;
+    private TextView userCreditView;
+
     private NavigationView.OnNavigationItemSelectedListener onNavigationItemSelectedListener = new NavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -78,9 +89,7 @@ public class HomeActivity extends AppCompatActivity {
                 //Drawer中的Navigation中的"我的跑路"部分
                 case R.id.nav_quit:
                     Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-                    SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-                    editor.clear();
-                    editor.apply();
+                    myApplication.clearAllInfo();
                     startActivity(intent);
                     finish();
                     break;
@@ -97,10 +106,17 @@ public class HomeActivity extends AppCompatActivity {
                 case UPDATE_USER:
                     Log.i("bmob", "handleMessage: recievie " + user.getName());
                     userNameView.setText(user.getName());
+                    myApplication.setName(user.getName());
                     userEmailView.setText(user.getEmail());
+                    myApplication.setEmail(user.getEmail());
+                    if (user.getCredit() != null) {
+                        userCreditView.setText("余额：" + user.getCredit().toString());
+                        myApplication.setCredit(user.getCredit());
+                    }
                     Log.i("bmob", "handleMessage: user headpic " + user.getHeadpic());
                     if (user.getHeadpic() != null && !user.getHeadpic().equals("")) {
                         Glide.with(context).load(user.getHeadpic()).into(headpicView);
+                        myApplication.setHeadpic(user.getHeadpic());
                     }
             }
         }
@@ -112,6 +128,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Bmob.initialize(this, "195f864122ce10a6d3197a984d4c6370");
         setContentView(R.layout.activity_home);
+        myApplication = (MyApplication) getApplication();
+
         context = getApplicationContext();
         toolbar = findViewById(R.id.toobar);
         setSupportActionBar(toolbar);
@@ -132,9 +150,11 @@ public class HomeActivity extends AppCompatActivity {
         userEmailView = headerLayout.findViewById(R.id.nav_email);
         userNameView = headerLayout.findViewById(R.id.nav_name);
         headpicView = headerLayout.findViewById(R.id.icon_head);
+        userCreditView = headerLayout.findViewById(R.id.nav_credit);
 
-        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
-        uid = preferences.getString("uid", "");
+//        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
+//        uid = preferences.getString("uid", "");
+        uid = myApplication.getUid();
         Log.i("bmob", "onCreate: get user uid : " + uid);
 
         getUserInfo();

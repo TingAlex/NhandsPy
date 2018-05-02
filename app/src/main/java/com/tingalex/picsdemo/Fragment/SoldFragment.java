@@ -1,4 +1,4 @@
-package com.tingalex.picsdemo;
+package com.tingalex.picsdemo.Fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,7 +11,7 @@ import android.view.ViewGroup;
  * Created by oureda on 2018/4/30.
  */
 
-public class OnshowFragment extends Fragment {
+public class SoldFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

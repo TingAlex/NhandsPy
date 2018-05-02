@@ -15,6 +15,15 @@ public class Users extends BmobObject {
     private String phone;
     private String uid;
     private String headpic;
+    private Double credit;
+
+    public Double getCredit() {
+        return credit;
+    }
+
+    public void setCredit(Double credit) {
+        this.credit = credit;
+    }
 
     public String getHeadpic() {
         return headpic;

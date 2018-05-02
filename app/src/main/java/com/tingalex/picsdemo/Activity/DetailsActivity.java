@@ -1,4 +1,4 @@
-package com.tingalex.picsdemo;
+package com.tingalex.picsdemo.Activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
 
 import java.util.List;
