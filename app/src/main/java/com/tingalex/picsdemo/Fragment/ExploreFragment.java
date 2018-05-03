@@ -65,7 +65,7 @@ public class ExploreFragment extends Fragment {
 //            final GoodsInMainAdapter.ViewHolder holder = new GoodsInMainAdapter.ViewHolder(view);
             Good good = goodList.get(position);
             Intent intent = new Intent(getActivity(), DetailsActivity.class);
-            intent.putExtra("uid", good.getUid());
+            intent.putExtra("bmobId", good.getObjectId());
             startActivity(intent);
         }
     };

@@ -18,6 +18,7 @@ public class Good extends BmobObject {
     private String tradeState;
     private String belongto;
     private String sellto;
+    private List<String> picurls;
 //    private Users belongs;
 //    private Users sells;
 //
@@ -93,9 +94,6 @@ public class Good extends BmobObject {
         this.tradeState = tradeState;
     }
 
-    private String uid;
-    private List<String> picurls;
-
     public List<String> getPicurls() {
         return picurls;
     }
@@ -108,15 +106,8 @@ public class Good extends BmobObject {
         return title;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid() {
-        this.uid = UUID.randomUUID().toString();
-    }
-
     public void setTitle(String title) {
         this.title = title;
     }
+
 }

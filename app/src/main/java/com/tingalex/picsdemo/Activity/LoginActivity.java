@@ -347,7 +347,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         if (object.get(0).getPassword().equals(mPassword)) {
                             Log.i("bmob", "成功：user and password match");
                             myApplication.setName(object.get(0).getName());
-                            myApplication.setUid(object.get(0).getUid());
+//                            myApplication.setUid(object.get(0).getUid());
                             myApplication.setEmail(object.get(0).getEmail());
                             myApplication.setPassword(object.get(0).getPassword());
                             myApplication.setBmobId(object.get(0).getObjectId());
@@ -370,7 +370,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         user.setHeadpic(USER_DEFAULT_HEAD_PIC);
                         user.setName(USER_DEFAULT_NAME);
                         user.setCredit(USER_DEFAULT_CREDIT);
-                        uid = user.getUid();
+//                        uid = user.getUid();
                         user.save(new SaveListener<String>() {
                             @Override
                             public void done(String objectId, BmobException e) {
@@ -378,7 +378,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                     Log.i("bmob", "添加用户成功");
                                     myApplication.setEmail(mEmail);
                                     myApplication.setPassword(mPassword);
-                                    myApplication.setUid(uid);
+//                                    myApplication.setUid(uid);
                                     myApplication.setBmobId(objectId);
 
                                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);

@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,21 +15,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.tingalex.picsdemo.Fragment.DetailsBottomBuyerFragment;
+import com.tingalex.picsdemo.Fragment.DetailsBottomOwnerFragment;
 import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
+import com.tingalex.picsdemo.global.MyApplication;
 
 import java.util.List;
 
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.QueryListener;
 
 public class DetailsActivity extends AppCompatActivity {
     public static final int UPDATE = 1;
+    private MyApplication myApplication;
     private Context context;
     private Good good;
     private TextView title, belongto, description, packageCost, price, category;
     private ImageView pictureFromWeb;
+    private Bundle bundle;
 
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
@@ -43,6 +52,11 @@ public class DetailsActivity extends AppCompatActivity {
                     price.setText(price.getText().toString() + good.getPrice());
                     category.setText(category.getText().toString() + good.getCategroy());
                     Glide.with(context).load(good.getPicurls().get(0)).into(pictureFromWeb);
+                    if (good.getBelongto() == myApplication.getEmail()) {
+                        replaceFragment(new DetailsBottomOwnerFragment());
+                    } else {
+                        replaceFragment(new DetailsBottomBuyerFragment());
+                    }
             }
         }
     };
@@ -52,6 +66,7 @@ public class DetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
         context = getApplicationContext();
+        myApplication = (MyApplication) getApplication();
 
         title = findViewById(R.id.titleView);
         belongto = findViewById(R.id.belongtoView);
@@ -62,8 +77,8 @@ public class DetailsActivity extends AppCompatActivity {
         pictureFromWeb = findViewById(R.id.pictureFromWeb);
 
         Intent intent = getIntent();
-        String goodUid = intent.getStringExtra("uid");
-
+        String goodUid = intent.getStringExtra("bmobId");
+        bundle = new Bundle();
         getDetails(goodUid);
 
     }
@@ -74,13 +89,13 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void run() {
                 BmobQuery<Good> bmobQuery = new BmobQuery("Good");
-                bmobQuery.addWhereEqualTo("uid", uid);
-                bmobQuery.findObjects(new FindListener<Good>() {
+                bmobQuery.getObject(uid, new QueryListener<Good>() {
                     @Override
-                    public void done(List<Good> objects, BmobException e) {
-                        if (objects != null) {
-                            good = objects.get(0);
-                            Log.i("bmob", "done: get good details of " + good.getUid());
+                    public void done(Good goods, BmobException e) {
+                        if (e == null) {
+                            good = goods;
+                            bundle.putString("bmobId", good.getObjectId());
+                            Log.i("bmob", "done: get good details of " + good.getObjectId());
                             Message message = new Message();
                             message.what = UPDATE;
                             handler.sendMessage(message);
@@ -93,4 +108,14 @@ public class DetailsActivity extends AppCompatActivity {
         }).start();
 
     }
+
+    private void replaceFragment(Fragment fragment) {
+        Log.i("bmob", "replaceFragment: details activity");
+        fragment.setArguments(bundle);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.detailsBottom, fragment);
+        transaction.commit();
+    }
+
 }

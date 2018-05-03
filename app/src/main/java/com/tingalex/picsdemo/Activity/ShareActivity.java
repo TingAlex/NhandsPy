@@ -273,7 +273,7 @@ public class ShareActivity extends AppCompatActivity {
 
     public String createGood(List<String> picurls) {
         good = new Good();
-        good.setUid();
+//        good.setUid();
         good.setTitle(titleText.getText().toString());
         good.setDescription(descriptionText.getText().toString());
         good.setPrice(Double.valueOf(priceText.getText().toString()));
@@ -297,6 +297,6 @@ public class ShareActivity extends AppCompatActivity {
                 }
             }
         });
-        return good.getUid();
+        return good.getObjectId();
     }
 }

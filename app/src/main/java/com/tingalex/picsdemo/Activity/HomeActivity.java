@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.QueryListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeActivity extends AppCompatActivity {
@@ -48,7 +50,6 @@ public class HomeActivity extends AppCompatActivity {
     private MyApplication myApplication;
     private Users user;
     //from SharedPreference
-    private String uid;
     //Toolbar to replace ActionBar.
     private Toolbar toolbar;
     //Drawer Part
@@ -152,27 +153,22 @@ public class HomeActivity extends AppCompatActivity {
         headpicView = headerLayout.findViewById(R.id.icon_head);
         userCreditView = headerLayout.findViewById(R.id.nav_credit);
 
-//        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
-//        uid = preferences.getString("uid", "");
-        uid = myApplication.getUid();
-        Log.i("bmob", "onCreate: get user uid : " + uid);
-
-        getUserInfo();
+        String userUid = myApplication.getBmobId();
+        Log.i("bmob", "onCreate: get user bmobId : " + userUid);
+        getUserInfo(userUid);
         replaceFragment(new ExploreFragment());
     }
 
-    private void getUserInfo() {
+    private void getUserInfo(final String uid) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 BmobQuery<Users> bmobQuery = new BmobQuery("Users");
-                bmobQuery.addWhereEqualTo("uid", uid);
-                bmobQuery.findObjects(new FindListener<Users>() {
+                bmobQuery.getObject(uid, new QueryListener<Users>() {
                     @Override
-                    public void done(List<Users> objects, BmobException e) {
-                        if (objects != null) {
-                            Log.i("bmob", "done:homepage get user!");
-                            user = objects.get(0);
+                    public void done(Users users, BmobException e) {
+                        if (e == null) {
+                            user = users;
                             Message message = new Message();
                             message.what = UPDATE_USER;
                             handler.sendMessage(message);
@@ -201,7 +197,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void replaceFragment(Fragment fragment) {
-        Log.i("bmob", "replaceFragment: get here!");
+        Log.i("bmob", "replaceFragment: Home activity");
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.change_layout, fragment);

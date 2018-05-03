@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Title: " />
+
     <TextView
         android:id="@+id/belongtoView"
         android:layout_width="wrap_content"
@@ -60,9 +61,11 @@
             android:layout_weight="1" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/buyButton"
-        android:layout_width="match_parent"
+
+    <FrameLayout
+        android:id="@+id/detailsBottom"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="买买买！" />
+        android:layout_weight="1"/>
+
 </LinearLayout>

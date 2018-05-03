@@ -13,7 +13,6 @@ public class Users extends BmobObject {
     private String name;
     private String password;
     private String phone;
-    private String uid;
     private String headpic;
     private Double credit;
 
@@ -65,11 +64,4 @@ public class Users extends BmobObject {
         this.phone = phone;
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid() {
-        this.uid = UUID.randomUUID().toString();
-    }
 }
