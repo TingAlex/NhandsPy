@@ -1,6 +1,7 @@
 package com.tingalex.picsdemo.global;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -16,6 +17,11 @@ public class MyApplication extends Application {
     private String name;
     private String headpic;
     private String bmobId;
+    private Context myContext;
+
+    public Context getMyContext() {
+        return myContext;
+    }
 
     public String getBmobId() {
         return bmobId;
@@ -43,6 +49,7 @@ public class MyApplication extends Application {
         password = getPasswordFromShared();
         uid = getUidFromShared();
         bmobId = getBmobIdFromShared();
+        myContext=getApplicationContext();
         Log.i("bmob", "onCreate: stored email is " + email);
         Log.i("bmob", "onCreate: stored password is " + password);
         Log.i("bmob", "onCreate: stored uid is " + uid);
@@ -90,16 +97,16 @@ public class MyApplication extends Application {
         return preferences.getString("uid", "");
     }
 
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
-        editor = getSharedPreferences("data", MODE_PRIVATE).edit();
-        editor.putString("uid", uid);
-        editor.apply();
-    }
+//    public String getUid() {
+//        return uid;
+//    }
+//
+//    public void setUid(String uid) {
+//        this.uid = uid;
+//        editor = getSharedPreferences("data", MODE_PRIVATE).edit();
+//        editor.putString("uid", uid);
+//        editor.apply();
+//    }
 
     public String getEmail() {
         return email;

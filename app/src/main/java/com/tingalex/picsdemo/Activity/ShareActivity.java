@@ -28,6 +28,8 @@ import android.widget.Toast;
 
 import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
+import com.tingalex.picsdemo.db.Users;
+import com.tingalex.picsdemo.global.MyApplication;
 
 import java.util.List;
 
@@ -40,6 +42,7 @@ import cn.bmob.v3.listener.UploadBatchListener;
 public class ShareActivity extends AppCompatActivity {
 
     public static final int CHOOSE_PHOTO = 2;
+    private MyApplication myApplication;
     private ImageView picture;
     private ImageView pictureFromWeb;
     private List<String> picurls;
@@ -60,6 +63,8 @@ public class ShareActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Bmob.initialize(this, "195f864122ce10a6d3197a984d4c6370");
         setContentView(R.layout.activity_share);
+        myApplication=(MyApplication)getApplication();
+
         //清空上一次给的图片地址
         imagePath = "";
         SharedPreferences.Editor editor = getSharedPreferences("data", MODE_PRIVATE).edit();
@@ -281,9 +286,15 @@ public class ShareActivity extends AppCompatActivity {
 //        String userUid = preferences.getString("uid", "");
         String userEmail = preferences.getString("email", "");
         good.setBelongto(userEmail);
+//*********
+        Users user=new Users();
+        user.setObjectId(myApplication.getBmobId());
+        good.setBelongs(user);
+//*********
         good.setCategroy(category);
         good.setTradeState("onSell");
         good.setPicurls(picurls);
+//        good.setBelongs();
         good.setContainPackageCost(containPackageCost);
 //        Glide.with(this).load(picurls.get(0)).into(pictureFromWeb);
         good.save(new SaveListener<String>() {

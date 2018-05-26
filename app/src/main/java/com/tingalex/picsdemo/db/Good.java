@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import cn.bmob.v3.BmobObject;
+import cn.bmob.v3.datatype.BmobRelation;
 
 /**
  * Created by oureda on 2018/4/18.
@@ -19,24 +20,34 @@ public class Good extends BmobObject {
     private String belongto;
     private String sellto;
     private List<String> picurls;
-//    private Users belongs;
-//    private Users sells;
-//
-//    public Users getBelongs() {
-//        return belongs;
-//    }
-//
-//    public void setBelongs(Users belongs) {
-//        this.belongs = belongs;
-//    }
-//
-//    public Users getSells() {
-//        return sells;
-//    }
-//
-//    public void setSells(Users sells) {
-//        this.sells = sells;
-//    }
+    private Users belongs;
+    private Users sells;
+    private BmobRelation likes;
+
+    public BmobRelation getLikes() {
+        return likes;
+    }
+
+    public void setLikes(BmobRelation likes) {
+        this.likes = likes;
+    }
+
+    //
+    public Users getBelongs() {
+        return belongs;
+    }
+
+    public void setBelongs(Users belongs) {
+        this.belongs = belongs;
+    }
+
+    public Users getSells() {
+        return sells;
+    }
+
+    public void setSells(Users sells) {
+        this.sells = sells;
+    }
 
     public String getBelongto() {
         return belongto;

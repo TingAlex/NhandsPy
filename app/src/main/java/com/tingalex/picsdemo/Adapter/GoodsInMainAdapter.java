@@ -24,38 +24,47 @@ public class GoodsInMainAdapter extends RecyclerView.Adapter<GoodsInMainAdapter.
     private List<Good> goodList;
     private Context context;
     private onItemClickListener tempOnItemClickListener;
-    public interface onItemClickListener{
+
+    public interface onItemClickListener {
         void onItemClick(View view, int position);
     }
-    public void setOnItemClickListener(onItemClickListener mOnItemClickListener){
-        tempOnItemClickListener=mOnItemClickListener;
+
+    public void setOnItemClickListener(onItemClickListener mOnItemClickListener) {
+        tempOnItemClickListener = mOnItemClickListener;
     }
-    static class ViewHolder extends RecyclerView.ViewHolder{
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
         CardView goodView;
-        ImageView goodImage;
-        TextView goodName;
-        public ViewHolder(View view){
+        ImageView goodImage, ownerHeadpic;
+        TextView goodName, ownerName, goodPrice;
+
+
+        public ViewHolder(View view) {
             super(view);
-            goodView=(CardView) view;
-            goodImage=view.findViewById(R.id.good_image);
-            goodName=view.findViewById(R.id.good_name);
+            goodView = (CardView) view;
+            goodImage = view.findViewById(R.id.good_image);
+            goodName = view.findViewById(R.id.good_name);
+            ownerHeadpic = view.findViewById(R.id.owner_headpic);
+            ownerName = view.findViewById(R.id.owner_name);
+            goodPrice = view.findViewById(R.id.good_price);
         }
     }
-    public GoodsInMainAdapter(Context mcontext, List<Good> mgoodList){
-        context=mcontext;
-        goodList=mgoodList;
+
+    public GoodsInMainAdapter(Context mcontext, List<Good> mgoodList) {
+        context = mcontext;
+        goodList = mgoodList;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_goods_cell_in_main,parent,false);
-        final ViewHolder holder=new ViewHolder(view);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_goods_cell_in_main, parent, false);
+        final ViewHolder holder = new ViewHolder(view);
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int position=holder.getAdapterPosition();
+                int position = holder.getAdapterPosition();
 //                Good good=goodList.get(0);
-                tempOnItemClickListener.onItemClick(holder.itemView,position);
+                tempOnItemClickListener.onItemClick(holder.itemView, position);
             }
         });
         return holder;
@@ -63,10 +72,13 @@ public class GoodsInMainAdapter extends RecyclerView.Adapter<GoodsInMainAdapter.
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Good good=goodList.get(position);
-        Log.i("bmob", "onBindViewHolder: "+good.getTitle());
+        Good good = goodList.get(position);
+        Log.i("bmob", "onBindViewHolder: " + good.getTitle());
         Glide.with(context).load(good.getPicurls().get(0)).into(holder.goodImage);
+        Glide.with(context).load(good.getBelongs().getHeadpic()).into(holder.ownerHeadpic);
         holder.goodName.setText(good.getTitle());
+        holder.ownerName.setText(good.getBelongs().getName());
+        holder.goodPrice.setText("¥ " + good.getPrice().toString());
     }
 
 

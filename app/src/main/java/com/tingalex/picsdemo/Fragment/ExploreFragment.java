@@ -1,11 +1,14 @@
 package com.tingalex.picsdemo.Fragment;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +43,14 @@ public class ExploreFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<Good> goodList;
     private Context context;
+
+    //broadcast receive
+    private LocalBroadcastManager broadcastManager;
+    private IntentFilter intentFilter;
+    private BroadcastReceiver receiver;
+    private int clickPositon;
+
+
     //SwipeRefresh Part
     private SwipeRefreshLayout swipeRefreshLayout;
     //Click the Floating Action Bar to create new publish action
@@ -64,16 +75,20 @@ public class ExploreFragment extends Fragment {
         public void onItemClick(View view, int position) {
 //            final GoodsInMainAdapter.ViewHolder holder = new GoodsInMainAdapter.ViewHolder(view);
             Good good = goodList.get(position);
+            clickPositon = position;
             Intent intent = new Intent(getActivity(), DetailsActivity.class);
             intent.putExtra("bmobId", good.getObjectId());
             startActivity(intent);
         }
     };
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_explore, container, false);
         context = getActivity();
+        clickPositon = -1;
+
         floatingActionButton = view.findViewById(R.id.addGood);
         floatingActionButton.setOnClickListener(onClickListener);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
@@ -89,14 +104,38 @@ public class ExploreFragment extends Fragment {
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(clickListener);
         updateGoods();
+
+
+        //receive broadcast
+        broadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("com.example.broadcasttest.LOCAL_BROADCAST");
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Toast.makeText(getActivity(), "get broadcast on position " + clickPositon, Toast.LENGTH_SHORT).show();
+                Log.i("bmob", "onReceive: goods: " + goodList.size());
+                if (clickPositon > -1) {
+                    adapter.notifyItemRemoved(clickPositon);
+                    goodList.remove(clickPositon);
+                    adapter.notifyItemRangeChanged(0, adapter.getItemCount());
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        };
+        broadcastManager.registerReceiver(receiver, intentFilter);
+
         return view;
     }
+
     private void updateGoods() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 BmobQuery<Good> bmobQuery = new BmobQuery("Good");
-                bmobQuery.addQueryKeys("uid,title,picurls");
+//                bmobQuery.addQueryKeys("title,picurls");
+                bmobQuery.include("belongs");
+                bmobQuery.addWhereEqualTo("tradeState","onSell");
                 bmobQuery.order("-updatedAt");
                 bmobQuery.findObjects(new FindListener<Good>() {
                     @Override
@@ -114,5 +153,12 @@ public class ExploreFragment extends Fragment {
                 });
             }
         }).start();
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        broadcastManager.unregisterReceiver(receiver);
     }
 }

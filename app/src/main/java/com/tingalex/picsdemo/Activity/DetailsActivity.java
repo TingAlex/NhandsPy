@@ -19,6 +19,7 @@ import com.tingalex.picsdemo.Fragment.DetailsBottomBuyerFragment;
 import com.tingalex.picsdemo.Fragment.DetailsBottomOwnerFragment;
 import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
+import com.tingalex.picsdemo.db.Users;
 import com.tingalex.picsdemo.global.MyApplication;
 
 import java.util.List;
@@ -36,13 +37,14 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView title, belongto, description, packageCost, price, category;
     private ImageView pictureFromWeb;
     private Bundle bundle;
+    private Users user;
 
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UPDATE:
                     title.setText(title.getText().toString() + good.getTitle());
-                    belongto.setText(belongto.getText().toString() + good.getBelongto());
+                    belongto.setText(belongto.getText().toString() + user.getEmail());
                     description.setText(description.getText().toString() + good.getDescription());
                     if (good.getContainPackageCost() == null || good.getContainPackageCost() == true) {
                         packageCost.setText(packageCost.getText().toString() + "是");
@@ -52,7 +54,9 @@ public class DetailsActivity extends AppCompatActivity {
                     price.setText(price.getText().toString() + good.getPrice());
                     category.setText(category.getText().toString() + good.getCategroy());
                     Glide.with(context).load(good.getPicurls().get(0)).into(pictureFromWeb);
-                    if (good.getBelongto() == myApplication.getEmail()) {
+//                    Log.i("bmob", "handleMessage:good.getBelongs().getObjectId() " + good.getBelongs().getObjectId());
+//                    Log.i("bmob", "handleMessage:myApplication.getBmobId() " + myApplication.getBmobId());
+                    if (good.getBelongs().getObjectId().equals(myApplication.getBmobId())) {
                         replaceFragment(new DetailsBottomOwnerFragment());
                     } else {
                         replaceFragment(new DetailsBottomBuyerFragment());
@@ -79,6 +83,8 @@ public class DetailsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String goodUid = intent.getStringExtra("bmobId");
         bundle = new Bundle();
+        bundle.putString("userBmobId", myApplication.getBmobId());
+        bundle.putDouble("userCredit",myApplication.getCredit());
         getDetails(goodUid);
 
     }
@@ -89,12 +95,16 @@ public class DetailsActivity extends AppCompatActivity {
             @Override
             public void run() {
                 BmobQuery<Good> bmobQuery = new BmobQuery("Good");
+                bmobQuery.include("belongs");
                 bmobQuery.getObject(uid, new QueryListener<Good>() {
                     @Override
                     public void done(Good goods, BmobException e) {
                         if (e == null) {
                             good = goods;
+                            user = good.getBelongs();
                             bundle.putString("bmobId", good.getObjectId());
+                            bundle.putString("sellerId",good.getBelongs().getObjectId());
+                            bundle.putDouble("goodCharge",good.getPrice());
                             Log.i("bmob", "done: get good details of " + good.getObjectId());
                             Message message = new Message();
                             message.what = UPDATE;

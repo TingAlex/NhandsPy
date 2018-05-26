@@ -364,7 +364,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     } else {
                         //register new user
                         final Users user = new Users();
-                        user.setUid();
+//                        user.setUid();
                         user.setEmail(mEmail);
                         user.setPassword(mPassword);
                         user.setHeadpic(USER_DEFAULT_HEAD_PIC);
