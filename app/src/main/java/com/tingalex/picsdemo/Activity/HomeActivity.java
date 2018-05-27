@@ -1,7 +1,9 @@
 package com.tingalex.picsdemo.Activity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -9,6 +11,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -44,10 +47,13 @@ import cn.bmob.v3.listener.QueryListener;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HomeActivity extends AppCompatActivity {
+    private IntentFilter intentFilter;
+    private UserChargeReceiver chargeReceiver;
+    private LocalBroadcastManager localBroadcastManager;
     //Message alert to render UI in handler
     public static final int UPDATE_USER = 1;
     private Context context;
-    private MyApplication myApplication;
+    protected MyApplication myApplication;
     private Users user;
     //from SharedPreference
     //Toolbar to replace ActionBar.
@@ -123,6 +129,21 @@ public class HomeActivity extends AppCompatActivity {
         }
     };
 
+    public class UserChargeReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(final Context context, Intent intent) {
+            Toast.makeText(context, "Toast from user charge receiver", Toast.LENGTH_SHORT).show();
+            Log.i("bmob", "onReceive: receive broadcast");
+            getUserInfo(myApplication.getBmobId());
+            // Post the UI updating code to our Handler
+//            handler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    Toast.makeText(context, "Toast from broadcast receiver", Toast.LENGTH_SHORT).show();
+//                }
+//            });
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +151,12 @@ public class HomeActivity extends AppCompatActivity {
         Bmob.initialize(this, "195f864122ce10a6d3197a984d4c6370");
         setContentView(R.layout.activity_home);
         myApplication = (MyApplication) getApplication();
+
+        localBroadcastManager=LocalBroadcastManager.getInstance(this);
+        chargeReceiver=new UserChargeReceiver();
+        intentFilter=new IntentFilter();
+        intentFilter.addAction("com.tingalex.picsdemo.LOCAL_BROADCAST");
+        localBroadcastManager.registerReceiver(chargeReceiver,intentFilter);
 
         context = getApplicationContext();
         toolbar = findViewById(R.id.toobar);
@@ -157,9 +184,12 @@ public class HomeActivity extends AppCompatActivity {
         Log.i("bmob", "onCreate: get user bmobId : " + userUid);
         getUserInfo(userUid);
         replaceFragment(new ExploreFragment());
+
+
+
     }
 
-    private void getUserInfo(final String uid) {
+    public void getUserInfo(final String uid) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -182,6 +212,11 @@ public class HomeActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        localBroadcastManager.unregisterReceiver(chargeReceiver);
+    }
     @Override
     //Action after you click the Hamburger icon on the top left of toolbar: Open the Drawer
     public boolean onOptionsItemSelected(MenuItem item) {

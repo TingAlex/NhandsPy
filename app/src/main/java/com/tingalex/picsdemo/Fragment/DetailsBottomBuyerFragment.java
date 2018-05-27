@@ -1,10 +1,12 @@
 package com.tingalex.picsdemo.Fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 import com.tingalex.picsdemo.R;
 import com.tingalex.picsdemo.db.Good;
 import com.tingalex.picsdemo.db.Users;
+import com.tingalex.picsdemo.global.MyApplication;
 
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobRelation;
@@ -26,6 +29,8 @@ import cn.bmob.v3.listener.UpdateListener;
  * A simple {@link Fragment} subclass.
  */
 public class DetailsBottomBuyerFragment extends Fragment {
+
+    private LocalBroadcastManager localBroadcastManager;
 
     private Button likeButton;
     private Button buyButton;
@@ -96,6 +101,11 @@ public class DetailsBottomBuyerFragment extends Fragment {
                                         public void done(BmobException e) {
                                             if (e == null) {
                                                 Log.i("bmob", "paid money!");
+
+                                                Intent intent=new Intent("com.tingalex.picsdemo.LOCAL_BROADCAST");
+                                                localBroadcastManager=LocalBroadcastManager.getInstance(getActivity());
+                                                localBroadcastManager.sendBroadcast(intent);
+
                                             } else {
                                                 Log.i("bmob", "onClick: network issue ");
                                                 Toast.makeText(getActivity(), "network connection issue", Toast.LENGTH_SHORT).show();
